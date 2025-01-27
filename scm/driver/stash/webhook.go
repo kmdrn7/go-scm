@@ -44,6 +44,8 @@ func (s *webhookService) Parse(req *http.Request, fn scm.SecretFunc) (scm.Webhoo
 	var hook scm.Webhook
 	event := req.Header.Get("X-Event-Key")
 	switch event {
+	case "diagnostics:ping":
+		hook, err = s.parsePingHook(data, guid)
 	case "repo:refs_changed":
 		hook, err = s.parsePushHook(data, guid)
 	case "pr:opened", "pr:declined", "pr:merged", "pr:from_ref_updated", "pr:modified":
@@ -78,6 +80,10 @@ func (s *webhookService) Parse(req *http.Request, fn scm.SecretFunc) (scm.Webhoo
 	}
 
 	return hook, nil
+}
+
+func (s *webhookService) parsePingHook(_ []byte, _ string) (scm.Webhook, error) {
+	return &scm.PingHook{}, nil
 }
 
 func (s *webhookService) parsePushHook(data []byte, guid string) (scm.Webhook, error) {

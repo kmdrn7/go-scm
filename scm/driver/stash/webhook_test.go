@@ -25,6 +25,19 @@ func TestWebhooks(t *testing.T) {
 		obj    interface{}
 	}{
 		//
+		// diagnostic events
+		//
+
+		// ping
+		{
+			sig:    "71295b197fa25f4356d2fb9965df3f2379d903d7",
+			event:  "diagnostics:ping",
+			before: "testdata/webhooks/ping.json",
+			after:  "testdata/webhooks/ping.json.golden",
+			obj:    new(scm.PingHook),
+		},
+
+		//
 		// push events
 		//
 
