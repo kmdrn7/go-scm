@@ -15,6 +15,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/jenkins-x/go-scm/pkg/hmac"
 	"github.com/jenkins-x/go-scm/scm"
 )
 
@@ -73,7 +74,12 @@ func (s *webhookService) Parse(req *http.Request, fn scm.SecretFunc) (scm.Webhoo
 		return hook, nil
 	}
 
-	if req.FormValue("secret") != key {
+	sig := req.Header.Get("X-Hub-Signature")
+	if sig != "" && !hmac.ValidatePrefix(data, []byte(key), sig) {
+		return hook, scm.ErrSignatureInvalid
+	}
+
+	if sig == "" && req.FormValue("secret") != key {
 		return hook, scm.ErrSignatureInvalid
 	}
 

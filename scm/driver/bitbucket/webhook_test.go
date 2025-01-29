@@ -198,26 +198,88 @@ func TestWebhooks(t *testing.T) {
 }
 
 func TestWebhookInvalid(t *testing.T) {
-	f, _ := os.ReadFile("testdata/webhooks/push.json")
-	r, _ := http.NewRequest("GET", "/?secret=xxxxxinvalidxxxxxx", bytes.NewBuffer(f))
-	r.Header.Set("x-event-key", "repo:push")
+	tests := []struct {
+		name    string
+		body    string
+		url     string
+		headers map[string]string
+	}{
+		{
+			name: "validate webhook via key from query param",
+			body: "testdata/webhooks/push.json",
+			url:  "/?secret=xxxxxinvalidxxxxxx",
+			headers: map[string]string{
+				"x-event-key": "repo:push",
+			},
+		},
+		{
+			name: "validate webhook via hmac signature from header",
+			body: "testdata/webhooks/push.json",
+			url:  "/",
+			headers: map[string]string{
+				"x-event-key":     "repo:push",
+				"x-hub-signature": "sha256=xxxxxinvalidxxxxxx",
+			},
+		},
+	}
 
-	s := new(webhookService)
-	_, err := s.Parse(r, secretFunc)
-	if err != scm.ErrSignatureInvalid {
-		t.Errorf("Expect invalid signature error, got %v", err)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			f, _ := os.ReadFile(test.body)
+			r, _ := http.NewRequest("GET", test.url, bytes.NewBuffer(f))
+			for k, v := range test.headers {
+				r.Header.Set(k, v)
+			}
+
+			s := new(webhookService)
+			_, err := s.Parse(r, secretFunc)
+			if err != scm.ErrSignatureInvalid {
+				t.Errorf("Expect invalid signature error, got %v", err)
+			}
+		})
 	}
 }
 
 func TestWebhookValidated(t *testing.T) {
-	f, _ := os.ReadFile("testdata/webhooks/push.json")
-	r, _ := http.NewRequest("GET", "/?secret=71295b197fa25f4356d2fb9965df3f2379d903d7", bytes.NewBuffer(f))
-	r.Header.Set("x-event-key", "repo:push")
+	tests := []struct {
+		name    string
+		body    string
+		url     string
+		headers map[string]string
+	}{
+		{
+			name: "validate webhook via key from query param",
+			body: "testdata/webhooks/push.json",
+			url:  "/?secret=71295b197fa25f4356d2fb9965df3f2379d903d7",
+			headers: map[string]string{
+				"x-event-key": "repo:push",
+			},
+		},
+		{
+			name: "validate webhook via hmac signature from header",
+			body: "testdata/webhooks/push.json",
+			url:  "/",
+			headers: map[string]string{
+				"x-event-key":     "repo:push",
+				"x-hub-signature": "sha256=811688563e3cc0d2bd3f5b277b0b5835c06cbc0bbefeb582498888925675d014",
+			},
+		},
+	}
 
-	s := new(webhookService)
-	_, err := s.Parse(r, secretFunc)
-	if err != nil {
-		t.Errorf("Expect valid signature, got %v", err)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			f, _ := os.ReadFile(test.body)
+			r, _ := http.NewRequest("GET", test.url, bytes.NewBuffer(f))
+			for k, v := range test.headers {
+				r.Header.Set(k, v)
+			}
+
+			s := new(webhookService)
+			_, err := s.Parse(r, secretFunc)
+			if err != nil {
+				t.Errorf("Expect valid signature, got %v", err)
+			}
+		})
 	}
 }
 
