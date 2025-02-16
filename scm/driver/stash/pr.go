@@ -302,6 +302,9 @@ type pullRequestApprovalInput struct {
 }
 
 func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	if s.client.Username == "" {
+		return nil, fmt.Errorf("client username is empty")
+	}
 	input := &pullRequestApprovalInput{
 		Status: "APPROVED",
 	}
@@ -315,6 +318,9 @@ func (s *pullService) Approve(ctx context.Context, repo string, number int) (*sc
 }
 
 func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	if s.client.Username == "" {
+		return nil, fmt.Errorf("client username is empty")
+	}
 	input := &pullRequestApprovalInput{
 		Status: "UNAPPROVED",
 	}
