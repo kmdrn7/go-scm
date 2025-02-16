@@ -188,6 +188,12 @@ type (
 		// UnrequestReview removes one or more users as a reviewer on a pull request.
 		UnrequestReview(ctx context.Context, repo string, number int, logins []string) (*Response, error)
 
+		// Approve adds an approval to a pull request as current authenticated user
+		Approve(ctx context.Context, repo string, number int) (*Response, error)
+
+		// Unapprove removes an approval from a pull request as current authenticated user
+		Unapprove(ctx context.Context, repo string, number int) (*Response, error)
+
 		// SetMilestone adds a milestone to a pull request
 		SetMilestone(ctx context.Context, repo string, prID int, number int) (*Response, error)
 

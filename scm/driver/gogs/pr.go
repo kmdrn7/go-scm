@@ -103,6 +103,14 @@ func (s *pullService) UnrequestReview(ctx context.Context, repo string, number i
 	return nil, scm.ErrNotSupported
 }
 
+func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
+func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *pullService) SetMilestone(ctx context.Context, repo string, prID, number int) (*scm.Response, error) {
 	return nil, scm.ErrNotSupported
 }

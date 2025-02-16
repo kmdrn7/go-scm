@@ -297,6 +297,36 @@ func (s *pullService) UnrequestReview(ctx context.Context, repo string, number i
 	return res, err
 }
 
+type pullRequestApprovalInput struct {
+	Status string `json:"status"`
+}
+
+func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	input := &pullRequestApprovalInput{
+		Status: "APPROVED",
+	}
+	namespace, name := scm.Split(repo)
+	path := fmt.Sprintf("rest/api/1.0/projects/%s/repos/%s/pull-requests/%d/participants/%s", namespace, name, number, s.client.Username)
+	res, err := s.client.do(ctx, "PUT", path, input, nil)
+	if err != nil && !(res.Status == http.StatusOK || res.Status == http.StatusNoContent) {
+		return nil, fmt.Errorf("failed to approve PR. errmsg: %v", err)
+	}
+	return res, nil
+}
+
+func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	input := &pullRequestApprovalInput{
+		Status: "UNAPPROVED",
+	}
+	namespace, name := scm.Split(repo)
+	path := fmt.Sprintf("rest/api/1.0/projects/%s/repos/%s/pull-requests/%d/participants/%s", namespace, name, number, s.client.Username)
+	res, err := s.client.do(ctx, "PUT", path, input, nil)
+	if err != nil && !(res.Status == http.StatusOK || res.Status == http.StatusNoContent) {
+		return nil, fmt.Errorf("failed to approve PR. errmsg: %v", err)
+	}
+	return res, nil
+}
+
 func (s *pullService) SetMilestone(ctx context.Context, repo string, prID, number int) (*scm.Response, error) {
 	return nil, scm.ErrNotSupported
 }

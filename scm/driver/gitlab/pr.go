@@ -214,6 +214,14 @@ func (s *pullService) UnrequestReview(ctx context.Context, repo string, number i
 	return s.UnassignIssue(ctx, repo, number, logins)
 }
 
+func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
+func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *pullService) Create(ctx context.Context, repo string, input *scm.PullRequestInput) (*scm.PullRequest, *scm.Response, error) {
 	path := fmt.Sprintf("api/v4/projects/%s/merge_requests", encode(repo))
 	in := &prInput{

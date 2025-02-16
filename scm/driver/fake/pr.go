@@ -329,6 +329,14 @@ func (s *pullService) UnrequestReview(ctx context.Context, repo string, number i
 	return nil, scm.ErrNotSupported
 }
 
+func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
+func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *pullService) Create(_ context.Context, fullName string, input *scm.PullRequestInput) (*scm.PullRequest, *scm.Response, error) {
 	f := s.data
 

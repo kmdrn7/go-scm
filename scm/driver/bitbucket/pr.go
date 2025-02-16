@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -282,6 +283,26 @@ func (s *pullService) RequestReview(ctx context.Context, repo string, number int
 
 func (s *pullService) UnrequestReview(ctx context.Context, repo string, number int, logins []string) (*scm.Response, error) {
 	return nil, scm.ErrNotSupported
+}
+
+func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	namespace, name := scm.Split(repo)
+	path := fmt.Sprintf("2.0/repositories/%s/%s/pullrequests/%d/approve", namespace, name, number)
+	res, err := s.client.do(ctx, "POST", path, nil, nil)
+	if err != nil && !(res.Status == http.StatusOK || res.Status == http.StatusNoContent) {
+		return nil, fmt.Errorf("failed to approve PR. errmsg: %v", err)
+	}
+	return res, nil
+}
+
+func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	namespace, name := scm.Split(repo)
+	path := fmt.Sprintf("2.0/repositories/%s/%s/pullrequests/%d/approve", namespace, name, number)
+	res, err := s.client.do(ctx, "DELETE", path, nil, nil)
+	if err != nil && !(res.Status == http.StatusOK || res.Status == http.StatusNoContent) {
+		return nil, fmt.Errorf("failed to approve PR. errmsg: %v", err)
+	}
+	return res, nil
 }
 
 func (s *pullService) DeletePullRequest(ctx context.Context, repo string, prID int) (*scm.Response, error) {
