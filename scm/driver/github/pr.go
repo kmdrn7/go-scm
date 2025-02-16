@@ -158,6 +158,14 @@ func (s *pullService) UnrequestReview(ctx context.Context, repo string, number i
 	return res, nil
 }
 
+func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
+func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *pullService) DeletePullRequest(ctx context.Context, repo string, prID int) (*scm.Response, error) {
 	return nil, scm.ErrNotSupported
 }
