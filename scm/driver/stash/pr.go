@@ -62,7 +62,15 @@ func (s *pullService) ListChanges(ctx context.Context, repo string, number int, 
 }
 
 func (s *pullService) ListCommits(ctx context.Context, repo string, number int, opts *scm.ListOptions) ([]*scm.Commit, *scm.Response, error) {
-	return nil, nil, scm.ErrNotSupported
+	namespace, name := scm.Split(repo)
+	path := fmt.Sprintf("rest/api/1.0/projects/%s/repos/%s/pull-requests/%d/commits?%s", namespace, name, number, encodeListOptions(opts))
+	out := new(commits)
+	res, err := s.client.do(ctx, "GET", path, nil, out)
+	if !out.pagination.LastPage.Bool {
+		res.Page.First = 1
+		res.Page.Next = opts.Page + 1
+	}
+	return convertCommits(out), res, err
 }
 
 func (s *pullService) ListLabels(ctx context.Context, repo string, number int, opts *scm.ListOptions) ([]*scm.Label, *scm.Response, error) {
@@ -422,10 +430,23 @@ type pullRequests struct {
 	Values []*pullRequest `json:"values"`
 }
 
+type commits struct {
+	pagination
+	Values []*commit `json:"values"`
+}
+
 func convertPullRequests(from *pullRequests) []*scm.PullRequest {
 	to := []*scm.PullRequest{}
 	for _, v := range from.Values {
 		to = append(to, convertPullRequest(v))
+	}
+	return to
+}
+
+func convertCommits(from *commits) []*scm.Commit {
+	to := []*scm.Commit{}
+	for _, v := range from.Values {
+		to = append(to, convertCommit(v))
 	}
 	return to
 }

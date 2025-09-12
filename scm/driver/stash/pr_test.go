@@ -413,6 +413,34 @@ func TestPullDeleteLabel(t *testing.T) {
 	assert.Equal(t, res.Status, 200, "Should be a success status in response")
 }
 
+func TestPullListCommits(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("http://example.com:7990").
+		Get("rest/api/1.0/projects/PRJ/repos/my-repo/pull-requests/1/commits").
+		Reply(200).
+		Type("application/json").
+		File("testdata/pr_commits.json")
+
+	client, _ := New("http://example.com:7990")
+	got, _, err := client.PullRequests.ListCommits(context.Background(), "PRJ/my-repo", 1, &scm.ListOptions{Size: 30, Page: 1})
+	if err != nil {
+		t.Error(err)
+	}
+
+	want := []*scm.Commit{}
+	raw, _ := os.ReadFile("testdata/pr_commits.json.golden")
+	err = json.Unmarshal(raw, &want)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Unexpected Results")
+		t.Log(diff)
+	}
+}
+
 func TestPullListLabels(t *testing.T) {
 	defer gock.Off()
 
