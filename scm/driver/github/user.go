@@ -63,14 +63,15 @@ func (s *userService) AcceptInvitation(ctx context.Context, invitationID int64) 
 }
 
 type user struct {
-	ID      int         `json:"id"`
-	Login   string      `json:"login"`
-	Name    string      `json:"name"`
-	Email   null.String `json:"email"`
-	Avatar  string      `json:"avatar_url"`
-	HTMLURL string      `json:"html_url"`
-	Created time.Time   `json:"created_at"`
-	Updated time.Time   `json:"updated_at"`
+	ID       int         `json:"id"`
+	Login    string      `json:"login"`
+	Name     string      `json:"name"`
+	Email    null.String `json:"email"`
+	Avatar   string      `json:"avatar_url"`
+	HTMLURL  string      `json:"html_url"`
+	Created  time.Time   `json:"created_at"`
+	Updated  time.Time   `json:"updated_at"`
+	RoleName string      `json:"role_name"`
 }
 
 type repositoryInvitation struct {
@@ -110,5 +111,6 @@ func convertUser(from *user) *scm.User {
 		Link:    from.HTMLURL,
 		Created: from.Created,
 		Updated: from.Updated,
+		IsAdmin: from.RoleName == "admin",
 	}
 }

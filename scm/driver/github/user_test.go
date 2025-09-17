@@ -177,3 +177,83 @@ func TestUserAcceptInvitation(t *testing.T) {
 	t.Run("Request", testRequest(res))
 	t.Run("Rate", testRate(res))
 }
+
+func TestUserIsAdmin_WithAdminRole(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.github.com").
+		Get("/users/octocat").
+		Reply(200).
+		Type("application/json").
+		SetHeader("X-GitHub-Request-Id", "DD0E:6011:12F21A8:1926790:5A2064E2").
+		SetHeader("X-RateLimit-Limit", "60").
+		SetHeader("X-RateLimit-Remaining", "59").
+		SetHeader("X-RateLimit-Reset", "1512076018").
+		File("testdata/user_admin.json")
+
+	client := NewDefault()
+	got, res, err := client.Users.FindLogin(context.Background(), "octocat")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	want := new(scm.User)
+	raw, _ := os.ReadFile("testdata/user_admin.json.golden")
+	err = json.Unmarshal(raw, &want)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Unexpected Results")
+		t.Log(diff)
+	}
+
+	if !got.IsAdmin {
+		t.Errorf("Expected user to be admin when role_name is 'admin', got IsAdmin: %v", got.IsAdmin)
+	}
+
+	t.Run("Request", testRequest(res))
+	t.Run("Rate", testRate(res))
+}
+
+func TestUserIsAdmin_WithNoRole(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.github.com").
+		Get("/users/octocat").
+		Reply(200).
+		Type("application/json").
+		SetHeader("X-GitHub-Request-Id", "DD0E:6011:12F21A8:1926790:5A2064E2").
+		SetHeader("X-RateLimit-Limit", "60").
+		SetHeader("X-RateLimit-Remaining", "59").
+		SetHeader("X-RateLimit-Reset", "1512076018").
+		File("testdata/user_no_role.json")
+
+	client := NewDefault()
+	got, res, err := client.Users.FindLogin(context.Background(), "octocat")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	want := new(scm.User)
+	raw, _ := os.ReadFile("testdata/user_no_role.json.golden")
+	err = json.Unmarshal(raw, &want)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Unexpected Results")
+		t.Log(diff)
+	}
+
+	if got.IsAdmin {
+		t.Errorf("Expected user to not be admin when role_name is empty, got IsAdmin: %v", got.IsAdmin)
+	}
+
+	t.Run("Request", testRequest(res))
+	t.Run("Rate", testRate(res))
+}
