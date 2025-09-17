@@ -162,11 +162,39 @@ func (s *pullService) UnrequestReview(ctx context.Context, repo string, number i
 }
 
 func (s *pullService) Approve(ctx context.Context, repo string, number int) (*scm.Response, error) {
-	return nil, scm.ErrNotSupported
+	reviews, _, err := s.client.Reviews.List(ctx, repo, number, &scm.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get PR reviews: %v", err)
+	}
+	for _, r := range reviews {
+		if r.Author.Login == s.client.Username && r.State == "APPROVED" {
+			return nil, nil
+		}
+	}
+	_, res, err := s.client.Reviews.Create(ctx, repo, number, &scm.ReviewInput{
+		Event: "APPROVE",
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to approve PR: %v", err)
+	}
+	return res, nil
 }
 
 func (s *pullService) Unapprove(ctx context.Context, repo string, number int) (*scm.Response, error) {
-	return nil, scm.ErrNotSupported
+	reviews, res, err := s.client.Reviews.List(ctx, repo, number, &scm.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get PR reviews: %v", err)
+	}
+	for _, r := range reviews {
+		if r.Author.Login == s.client.Username && r.State == "APPROVED" {
+			_, res, err := s.client.Reviews.Dismiss(ctx, repo, number, r.ID, "this approval is dismissed")
+			if err != nil {
+				return nil, fmt.Errorf("failed to dismiss PR: %v", err)
+			}
+			return res, nil
+		}
+	}
+	return res, nil
 }
 
 func (s *pullService) DeletePullRequest(ctx context.Context, repo string, prID int) (*scm.Response, error) {

@@ -357,3 +357,68 @@ func TestPullService_UnrequestReview(t *testing.T) {
 	t.Run("Rate", testRate(res))
 
 }
+
+func TestPullService_Approve(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.github.com").
+		Get("/repos/octocat/hello-world/pulls/1/reviews").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/pr_reviews.json")
+
+	gock.New("https://api.github.com").
+		Post("/repos/octocat/hello-world/pulls/1/reviews").
+		MatchType("application/json").
+		JSON(map[string]interface{}{"event": "APPROVE"}).
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/pr_approve_review.json")
+
+	client := NewDefault()
+	res, err := client.PullRequests.Approve(context.Background(), "octocat/hello-world", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("Request", testRequest(res))
+	t.Run("Rate", testRate(res))
+}
+
+func TestPullService_Unapprove(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.github.com").
+		Get("/user").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/user.json")
+
+	gock.New("https://api.github.com").
+		Get("/repos/octocat/hello-world/pulls/1/reviews").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/pr_reviews.json")
+
+	gock.New("https://api.github.com").
+		Put("/repos/octocat/hello-world/pulls/1/reviews/80/dismissals").
+		MatchType("application/json").
+		JSON(map[string]interface{}{"message": "Dismissing approval"}).
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/pr_dismiss_review.json")
+
+	client := NewDefault()
+	res, err := client.PullRequests.Unapprove(context.Background(), "octocat/hello-world", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("Request", testRequest(res))
+	t.Run("Rate", testRate(res))
+}
