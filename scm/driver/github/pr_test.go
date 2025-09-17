@@ -122,6 +122,43 @@ func TestPullListChanges(t *testing.T) {
 	t.Run("Page", testPage(res))
 }
 
+func TestPullListCommits(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.github.com").
+		Get("/repos/octocat/hello-world/pulls/1347/commits").
+		MatchParam("page", "1").
+		MatchParam("per_page", "30").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		SetHeaders(mockPageHeaders).
+		File("testdata/pr_commits.json")
+
+	client := NewDefault()
+	got, res, err := client.PullRequests.ListCommits(context.Background(), "octocat/hello-world", 1347, &scm.ListOptions{Page: 1, Size: 30})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	want := []*scm.Commit{}
+	raw, _ := os.ReadFile("testdata/pr_commits.json.golden")
+	err = json.Unmarshal(raw, &want)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Unexpected Results")
+		t.Log(diff)
+	}
+
+	t.Run("Request", testRequest(res))
+	t.Run("Rate", testRate(res))
+	t.Run("Page", testPage(res))
+}
+
 func TestPullMerge(t *testing.T) {
 	defer gock.Off()
 
