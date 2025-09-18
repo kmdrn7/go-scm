@@ -607,7 +607,9 @@ func convertState(from string) scm.State {
 func convertParticipants(participants *participants) []scm.User {
 	answer := []scm.User{}
 	for _, p := range participants.Values {
-		answer = append(answer, *convertUser(&p.User))
+		user := *convertUser(&p.User)
+		user.IsAdmin = p.Permission == REPOSITORY_PERMISSION_ADMIN
+		answer = append(answer, user)
 	}
 	return answer
 }

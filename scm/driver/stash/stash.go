@@ -19,6 +19,10 @@ import (
 	"github.com/jenkins-x/go-scm/scm/driver/internal/null"
 )
 
+const (
+	REPOSITORY_PERMISSION_ADMIN = "REPO_ADMIN"
+)
+
 // Reference API Documentation:
 //   https://docs.atlassian.com/bitbucket-server/rest/5.11.1/bitbucket-rest.html
 
