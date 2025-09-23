@@ -34,6 +34,10 @@ func (s *gitService) DeleteRef(ctx context.Context, repo, ref string) (*scm.Resp
 	return nil, nil
 }
 
+func (s *gitService) DeleteBranch(ctx context.Context, repo, ref string) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *gitService) FindBranch(ctx context.Context, repo, name string) (*scm.Reference, *scm.Response, error) {
 	panic("implement me")
 }

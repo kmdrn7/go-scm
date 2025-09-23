@@ -91,6 +91,22 @@ func TestGitDeleteRef(t *testing.T) {
 	}
 }
 
+func TestGitDeleteBranch(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://example.com:7990").
+		Delete("rest/branch-utils/latest/projects/PRJ/repos/my-repo/branches").
+		Reply(204).
+		Type("application/json")
+	client, _ := New("http://example.com:7990")
+	resp, err := client.Git.DeleteBranch(context.Background(), "PRJ/my-repo", "feature-branch")
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.Status != 204 {
+		t.Errorf("DeleteBranch returned %v, want 204", resp.Status)
+	}
+}
+
 func TestGitFindBranch(t *testing.T) {
 	defer gock.Off()
 

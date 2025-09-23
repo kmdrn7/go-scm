@@ -51,6 +51,10 @@ func (s *gitService) DeleteRef(ctx context.Context, repo, ref string) (*scm.Resp
 	return resp, err
 }
 
+func (s *gitService) DeleteBranch(ctx context.Context, repo, ref string) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *gitService) FindBranch(ctx context.Context, repo, branchName string) (*scm.Reference, *scm.Response, error) {
 	namespace, name := scm.Split(repo)
 	out, resp, err := s.client.GiteaClient.GetRepoBranch(namespace, name, branchName)

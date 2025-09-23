@@ -24,6 +24,10 @@ func (s *gitService) DeleteRef(ctx context.Context, repo, ref string) (*scm.Resp
 	return nil, scm.ErrNotSupported
 }
 
+func (s *gitService) DeleteBranch(ctx context.Context, repo, ref string) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *gitService) CreateRef(ctx context.Context, repo, ref, sha string) (*scm.Reference, *scm.Response, error) {
 	// https://docs.microsoft.com/en-us/rest/api/azure/devops/git/refs/update-refs?view=azure-devops-rest-6.0
 	ro, err := decodeRepo(repo)

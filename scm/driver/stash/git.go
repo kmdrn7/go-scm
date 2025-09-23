@@ -59,6 +59,13 @@ func (s *gitService) DeleteRef(ctx context.Context, repo, ref string) (*scm.Resp
 	return s.client.do(ctx, "DELETE", path, &in, nil)
 }
 
+func (s *gitService) DeleteBranch(ctx context.Context, repo, name string) (*scm.Response, error) {
+	namespace, repoName := scm.Split(repo)
+	path := fmt.Sprintf("rest/branch-utils/latest/projects/%s/repos/%s/branches", namespace, repoName)
+	in := deleteRefInput{Name: fmt.Sprintf("refs/heads/%s", name)}
+	return s.client.do(ctx, "DELETE", path, &in, nil)
+}
+
 func (s *gitService) FindBranch(ctx context.Context, repo, branch string) (*scm.Reference, *scm.Response, error) {
 	namespace, name := scm.Split(repo)
 	path := fmt.Sprintf("rest/api/1.0/projects/%s/repos/%s/branches?filterText=%s", namespace, name, url.QueryEscape(branch))

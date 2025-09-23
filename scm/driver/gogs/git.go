@@ -28,6 +28,10 @@ func (s *gitService) DeleteRef(ctx context.Context, repo, ref string) (*scm.Resp
 	return nil, scm.ErrNotSupported
 }
 
+func (s *gitService) DeleteBranch(ctx context.Context, repo, ref string) (*scm.Response, error) {
+	return nil, scm.ErrNotSupported
+}
+
 func (s *gitService) FindBranch(ctx context.Context, repo, name string) (*scm.Reference, *scm.Response, error) {
 	path := fmt.Sprintf("api/v1/repos/%s/branches/%s", repo, name)
 	out := new(branch)

@@ -341,3 +341,27 @@ func TestGitGetDefaultBranch(t *testing.T) {
 	t.Run("Request", testRequest(res))
 	t.Run("Rate", testRate(res))
 }
+
+func TestGitDeleteBranch(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.github.com").
+		Delete("/repos/octocat/hello-world/git/refs/heads/feature-branch").
+		Reply(204).
+		Type("application/json").
+		SetHeaders(mockHeaders)
+
+	client := NewDefault()
+	res, err := client.Git.DeleteBranch(context.Background(), "octocat/hello-world", "feature-branch")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if res.Status != 204 {
+		t.Errorf("DeleteBranch returned %v, want 204", res.Status)
+	}
+
+	t.Run("Request", testRequest(res))
+	t.Run("Rate", testRate(res))
+}

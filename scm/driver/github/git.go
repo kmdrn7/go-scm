@@ -76,6 +76,12 @@ func (s *gitService) DeleteRef(ctx context.Context, repo, ref string) (*scm.Resp
 	return res, err
 }
 
+func (s *gitService) DeleteBranch(ctx context.Context, repo, name string) (*scm.Response, error) {
+	path := fmt.Sprintf("repos/%s/git/refs/heads/%s", repo, name)
+	res, err := s.client.do(ctx, http.MethodDelete, path, nil, nil)
+	return res, err
+}
+
 func (s *gitService) FindTag(ctx context.Context, repo, name string) (*scm.Reference, *scm.Response, error) {
 	return nil, nil, scm.ErrNotSupported
 }

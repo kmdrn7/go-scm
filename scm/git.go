@@ -81,6 +81,9 @@ type (
 		// ListBranches returns a list of git branches.
 		ListBranches(ctx context.Context, repo string, opts *ListOptions) ([]*Reference, *Response, error)
 
+		// DeleteBranch deletes a git branch by name
+		DeleteBranch(ctx context.Context, repo, name string) (*Response, error)
+
 		// ListCommits returns a list of git commits.
 		ListCommits(ctx context.Context, repo string, opts CommitListOptions) ([]*Commit, *Response, error)
 
