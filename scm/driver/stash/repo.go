@@ -456,10 +456,11 @@ func (s *repositoryService) CreateStatus(ctx context.Context, repo, ref string, 
 	}
 	res, err := s.client.do(ctx, "POST", path, in, nil)
 	return &scm.Status{
-		State: input.State,
-		Label: input.Label,
-		Desc:  input.Desc,
-		Link:  input.Link,
+		State:  input.State,
+		Label:  input.Label,
+		Desc:   input.Desc,
+		Link:   input.Link,
+		Target: input.Link,
 	}, res, err
 }
 
@@ -571,6 +572,7 @@ func convertStatus(from *status) *scm.Status {
 		Label:  from.Key,
 		Desc:   from.Desc,
 		Target: from.URL,
+		Link:   from.URL,
 	}
 }
 
