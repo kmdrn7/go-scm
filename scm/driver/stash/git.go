@@ -119,7 +119,15 @@ func (s *gitService) ListBranches(ctx context.Context, repo string, opts *scm.Li
 }
 
 func (s *gitService) ListCommits(ctx context.Context, repo string, opts scm.CommitListOptions) ([]*scm.Commit, *scm.Response, error) {
-	return nil, nil, scm.ErrNotSupported
+	namespace, name := scm.Split(repo)
+	path := fmt.Sprintf("rest/api/1.0/projects/%s/repos/%s/commits?%s", namespace, name, encodeCommitListOptions(opts))
+	out := new(commits)
+	res, err := s.client.do(ctx, "GET", path, nil, out)
+	if !out.pagination.LastPage.Bool {
+		res.Page.First = 1
+		res.Page.Next = opts.Page + 1
+	}
+	return convertCommitList(out), res, err
 }
 
 func (s *gitService) ListTags(ctx context.Context, repo string, opts *scm.ListOptions) ([]*scm.Reference, *scm.Response, error) {
@@ -354,4 +362,12 @@ func convertTag(from *branch) *scm.Reference {
 		Path: scm.ExpandRef(from.DisplayID, "refs/tags/"),
 		Sha:  from.LatestCommit,
 	}
+}
+
+func convertCommitList(from *commits) []*scm.Commit {
+	to := []*scm.Commit{}
+	for _, v := range from.Values {
+		to = append(to, convertCommit(v))
+	}
+	return to
 }

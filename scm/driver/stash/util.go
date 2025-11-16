@@ -62,6 +62,28 @@ func encodePullRequestListOptions(opts *scm.PullRequestListOptions) string {
 	return params.Encode()
 }
 
+func encodeCommitListOptions(opts scm.CommitListOptions) string {
+	params := url.Values{}
+	if opts.Page > 1 {
+		params.Set("start", strconv.Itoa(
+			(opts.Page-1)*opts.Size),
+		)
+	}
+	if opts.Size != 0 {
+		params.Set("limit", strconv.Itoa(opts.Size))
+	}
+	if opts.Ref != "" {
+		params.Set("until", opts.Ref)
+	}
+	if opts.Sha != "" {
+		params.Set("until", opts.Sha)
+	}
+	if opts.Path != "" {
+		params.Set("path", opts.Path)
+	}
+	return params.Encode()
+}
+
 // func copyPagination(from pagination, to *scm.Response) error {
 // 	if to == nil {
 // 		return nil
