@@ -34,7 +34,7 @@ func percentEncode(input string) string {
 	for _, b := range []byte(input) {
 		// if in unreserved set
 		if shouldEscape(b) {
-			buf.Write([]byte(fmt.Sprintf("%%%02X", b)))
+			fmt.Fprintf(&buf, "%%%02X", b)
 		} else {
 			// do not escape, write byte as-is
 			buf.WriteByte(b)
