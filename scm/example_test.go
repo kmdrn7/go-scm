@@ -251,7 +251,7 @@ func ExampleContent_find() {
 		log.Fatal(err)
 	}
 
-	log.Println(content.Path, content.Data)
+	log.Println(content.Path, string(content.Data))
 }
 
 func ExampleHook_list() {

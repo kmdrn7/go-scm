@@ -36,6 +36,11 @@
     "merge_status": "can_be_merged",
     "sha": "12d65c8dd2b2676fa3ac47d955accc085a37a9c1",
     "merge_commit_sha": null,
+    "diff_refs": {
+        "base_sha": "9c5dc8c4123abcdef0123456789abcdef0123456",
+        "head_sha": "12d65c8dd2b2676fa3ac47d955accc085a37a9c1",
+        "start_sha": "9c5dc8c4123abcdef0123456789abcdef0123456"
+    },
     "user_notes_count": 1,
     "approvals_before_merge": null,
     "discussion_locked": null,

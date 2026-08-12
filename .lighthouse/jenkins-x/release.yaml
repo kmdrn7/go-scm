@@ -15,6 +15,9 @@ spec:
         steps:
         - image: uses:jenkins-x/jx3-pipeline-catalog/tasks/git-clone/git-clone.yaml@versionStream
         - name: next-version
+          env:
+          - name: TAG_SUFFIX
+            value: -pre
         - name: jx-variables
         - name: build-make-build
         - name: promote-changelog

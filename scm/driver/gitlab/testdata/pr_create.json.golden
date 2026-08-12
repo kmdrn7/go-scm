@@ -9,7 +9,6 @@
   "Target": "master",
   "Base": {
     "Ref": "master",
-    "Sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
     "Repo": {
       "ID": "32732",
       "Namespace": "diaspora",

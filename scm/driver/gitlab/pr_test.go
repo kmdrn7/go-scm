@@ -65,6 +65,43 @@ func TestPullFind(t *testing.T) {
 	t.Run("Rate", testRate(res))
 }
 
+// TestPullFind_BaseShaNotMappedFromDiffRefs asserts that scm.PullRequest.Base.Sha
+// is NOT populated from GitLab's diff_refs.base_sha — see the comment on the
+// `pr` struct's DiffRefs field for why these are semantically different
+// (merge-base vs. base-branch HEAD). Regression guard: if a future change
+// re-maps that field, this test catches it.
+func TestPullFind_BaseShaNotMappedFromDiffRefs(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://gitlab.com").
+		Get("/api/v4/projects/32732").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/repo.json")
+	gock.New("https://gitlab.com").
+		Get("/api/v4/projects/32732").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/repo.json")
+	gock.New("https://gitlab.com").
+		Get("/api/v4/projects/diaspora/diaspora/merge_requests/1347").
+		Reply(200).
+		Type("application/json").
+		SetHeaders(mockHeaders).
+		File("testdata/merge.json") // contains diff_refs.base_sha = "9c5dc8c4..."
+
+	client := NewDefault()
+	got, _, err := client.PullRequests.Find(context.Background(), "diaspora/diaspora", 1347)
+	if err != nil {
+		t.Fatalf("Find: %v", err)
+	}
+	if got.Base.Sha != "" {
+		t.Errorf("Base.Sha should be empty on GitLab (do NOT map from diff_refs.base_sha — merge-base, not branch HEAD); got %q", got.Base.Sha)
+	}
+}
+
 func TestPullList(t *testing.T) {
 	defer gock.Off()
 
